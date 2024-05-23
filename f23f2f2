@@ -1,0 +1,351 @@
+getgenv().Otrion = {
+    Aimbot = {
+        Main = {
+            Enabled = false,
+            Key = "Q",
+            Smoothing = true,
+            Smoothness = 0.02, -- Smoother aim
+            Predict = true,
+            Prediction = 0.18, -- Default prediction
+            Shake = false,
+            Shakiness = 55,
+            BodyParts = {"Head"}
+        },
+        FOV = {
+            UseFOV = true,
+            ShowFOV = false,
+            Radius = 120,
+            Filled = false,
+            Transparency = 0.4,
+            Color = Color3.fromRGB(255, 231, 231)
+        }
+    },
+    Tracer = {
+        Enabled = false,
+        Transparency = 0.4,
+        Visible = false,
+        Color = Color3.fromRGB(240, 199, 199)
+    },
+    Auto_Prediction = {
+        Enabled = true,
+        ping20_30 = 0.05, -- Default prediction
+        ping30_40 = 0.047, -- Default prediction
+        ping40_50 = 0.05, -- Default prediction
+        ping50_60 = 0.052, -- Default prediction
+        ping60_70 = 0.051, -- Default prediction
+        ping70_80 = 0.054, -- Default prediction
+        ping80_90 = 0.056, -- Default prediction
+        ping90_100 = 0.06, -- Default prediction
+        ping100_110 = 0.064, -- Default prediction
+        ping110_120 = 0.061, -- Default prediction
+        ping120_130 = 0.062, -- Default prediction
+        ping130_140 = 0.064, -- Default prediction
+        ping140_150 = 0.068, -- Default prediction
+        ping150_160 = 0.067, -- Default prediction
+        ping160_170 = 0.073, -- Default prediction
+        ping170_180 = 0.074, -- Default prediction
+        ping180_190 = 0.082, -- Default prediction
+        ping190_200 = 0.083 -- Default prediction
+    },
+    Utility = {
+        FOVPosition = "Target", -- { Player }, { Mouse }
+        Notifications = false
+    }
+}
+
+local function a()
+    if game.PlaceId == 2788229376 then return "UpdateMousePos"
+    elseif game.PlaceId == 5602055394 or game.PlaceId == 7951883376 then return "MousePos"
+    elseif game.PlaceId == 9825515356 then return "GetMousePos"
+    end
+end
+
+local b = a()
+
+function locatemainevent()
+    for c, d in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+        if d.Name == "MainEvent" then return d end
+    end
+end
+
+local e = locatemainevent()
+local f = getgenv().Otrion
+local g = f.Utility
+local h = f.Aimbot.Main
+local i = f.Aimbot.FOV
+local l = f.Tracer
+local m = f.Auto_Prediction
+local n = Vector3.new
+local o = Vector2.new
+local p = CFrame.new
+local q = game:GetService("UserInputService")
+local r = game:GetService("RunService")
+local s = game:GetService("Players")
+local t = game:GetService("Workspace")
+local u = false
+local v = s.LocalPlayer
+local w = nil
+local x = nil
+local B = v:GetMouse()
+local C = t.CurrentCamera
+
+local D = Drawing.new("Circle")
+D.Visible = i.ShowFOV
+D.Thickness = 1
+D.NumSides = 30
+D.Radius = i.Radius * 3
+D.Color = i.Color
+D.Filled = i.Filled
+D.Transparency = i.Transparency
+
+local F = Drawing.new("Line")
+F.Color = l.Color
+F.Transparency = l.Transparency
+F.Thickness = 1
+F.Visible = l.Visible
+
+local function G()
+    local H, I = math.huge, nil
+    for c, d in pairs(s:GetPlayers()) do
+        local c, J = C:WorldToViewportPoint(d.Character.PrimaryPart.Position)
+        if d ~= v and d.Character and d.Character:FindFirstChild("Humanoid") and d.Character.Humanoid.Health ~= 0 and d.Character:FindFirstChild("HumanoidRootPart") and J then
+            local K = C:WorldToViewportPoint(d.Character.PrimaryPart.Position)
+            local L = (o(K.X, K.Y) - o(B.X, B.Y + 36)).magnitude
+            if L < H then I = d H = L end
+        end
+    end
+    return I
+end
+
+local function M()
+    local H, N = math.huge, nil
+    if w then
+        for c, d in pairs(w.Character:GetChildren()) do
+            if table.find(h.BodyParts, d.Name) then
+                local K = C:WorldToViewportPoint(d.Position)
+                local O = (o(B.X, B.Y + 36) - o(K.X, K.Y)).Magnitude
+                if O < H then H = O N = d end
+            end
+        end
+        return N
+    end
+end
+
+local function Q(R)
+    if R.Character.HumanoidRootPart.Velocity.Y < -5 and R.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Freefall or R.Character.HumanoidRootPart.Velocity.Y < -50 then return true
+    elseif R and (R.Character.HumanoidRootPart.Velocity.X > 35 or R.Character.HumanoidRootPart.Velocity.X < -35) then return true
+    elseif R and R.Character.HumanoidRootPart.Velocity.Y > 60 then return true
+    elseif R and (R.Character.HumanoidRootPart.Velocity.Z > 35 or R.Character.HumanoidRootPart.Velocity.Z < -35) then return true
+    else return false
+    end
+end
+
+local function S(T, U, V)
+    if T then
+        local K = nil
+        if not Q(T) then
+            K = C:WorldToViewportPoint(T.Character.PrimaryPart.Position + T.Character.PrimaryPart.Velocity * U.Prediction)
+        else
+            K = C:WorldToViewportPoint(T.Character.PrimaryPart.Position + T.Character.Humanoid.MoveDirection * T.Character.Humanoid.WalkSpeed * U.Prediction)
+        end
+        local W = (o(B.X, B.Y + 36) - o(K.X, K.Y)).Magnitude
+        if W < V * 3 then return true else return false end
+    end
+end
+
+local function Y(T, U, V)
+    if T then
+        if i.UseFOV then
+            local K = nil
+            if not Q(T) then
+                K = C:WorldToViewportPoint(T.Character.PrimaryPart.Position + T.Character.PrimaryPart.Velocity * U.Prediction)
+            else
+                K = C:WorldToViewportPoint(T.Character.PrimaryPart.Position + T.Character.Humanoid.MoveDirection * T.Character.Humanoid.WalkSpeed * U.Prediction)
+            end
+            local W = (o(B.X, B.Y + 36) - o(K.X, K.Y)).Magnitude
+            if W < V * 3 then return true else return false end
+        else return true
+        end
+    end
+end
+
+q.InputBegan:Connect(function(Z, I)
+    if not I then
+        if Z.KeyCode == Enum.KeyCode[h.Key:upper()] then
+            u = not u
+            if u then
+                w = G()
+            elseif not u then
+                w = nil
+            end
+        end
+    end
+end)
+
+r.RenderStepped:Connect(function()
+    if w then
+        local targetPart = M()
+        local K = nil
+        if w.Character.BodyEffects["K.O"].Value == true or v.Character.BodyEffects["K.O"].Value == true then
+            u = false
+            w = nil
+        else
+            if h.Shake then
+                if h.Predict then
+                    if not Q(w) then
+                        _ = targetPart.Position + targetPart.Velocity * h.Prediction + n(math.random(-h.Shakiness, h.Shakiness), math.random(-h.Shakiness, h.Shakiness), math.random(-h.Shakiness, h.Shakiness)) * 0.1
+                    else
+                        _ = targetPart.Position + w.Character.Humanoid.MoveDirection * w.Character.Humanoid.WalkSpeed * h.Prediction + n(math.random(-h.Shakiness, h.Shakiness), math.random(-h.Shakiness, h.Shakiness), math.random(-h.Shakiness, h.Shakiness)) * 0.1
+                    end
+                    K = C:WorldToViewportPoint(_)
+                else
+                    _ = targetPart.Position + n(math.random(-h.Shakiness, h.Shakiness), math.random(-h.Shakiness, h.Shakiness), math.random(-h.Shakiness, h.Shakiness)) * 0.1
+                    K = C:WorldToViewportPoint(_)
+                end
+            else
+                if h.Predict then
+                    if not Q(w) then
+                        _ = targetPart.Position + targetPart.Velocity * h.Prediction
+                    else
+                        _ = targetPart.Position + w.Character.Humanoid.MoveDirection * w.Character.Humanoid.WalkSpeed * h.Prediction
+                    end
+                    K = C:WorldToViewportPoint(_)
+                else
+                    _ = targetPart.Position
+                    K = C:WorldToViewportPoint(_)
+                end
+            end
+
+            -- Teleport cursor to the target part
+            if K then
+                mousemoveabs(K.X, K.Y)
+            end
+
+            if Y(w, h, D.Radius) then
+                local a0 = nil
+                if h.Smoothing then
+                    a0 = p(C.CFrame.p, _)
+                    C.CFrame = C.CFrame:Lerp(a0, h.Smoothness, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                else
+                    C.CFrame = p(C.CFrame.p, _)
+                end
+            end
+
+            if g.FOVPosition == "Mouse" then
+                if i.ShowFOV then D.Position = o(B.X, B.Y + 36) end
+            elseif g.FOVPosition == "Target" then
+                if i.ShowFOV then D.Position = o(K.X, K.Y) end
+            end
+
+            if l.Enabled then
+                F.Visible = true
+                F.From = o(B.X, B.Y + 36)
+                F.To = o(K.X, K.Y)
+            end
+        end
+    else
+        D.Position = o(B.X, B.Y + 36)
+        F.Visible = false
+    end
+end)
+
+v.Character.ChildAdded:Connect(function(a1)
+    if a1:IsA("Tool") then
+        a1.Activated:connect(function()
+            if u then
+                local targetPart = M()
+                if targetPart then
+                    local K = nil
+                    if h.Smoothing then
+                        local _ = targetPart.Position
+                        local a0 = p(C.CFrame.p, _)
+                        C.CFrame = C.CFrame:Lerp(a0, h.Smoothness, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                    else
+                        C.CFrame = p(C.CFrame.p, targetPart.Position)
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+v.CharacterAdded:Connect(function(a2)
+    a2.ChildAdded:Connect(function(a1)
+        a1.Activated:connect(function()
+            if u then
+                local targetPart = M()
+                if targetPart then
+                    local K = nil
+                    if h.Smoothing then
+                        local _ = targetPart.Position
+                        local a0 = p(C.CFrame.p, _)
+                        C.CFrame = C.CFrame:Lerp(a0, h.Smoothness, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                    else
+                        C.CFrame = p(C.CFrame.p, targetPart.Position)
+                    end
+                end
+            end
+        end)
+    end)
+end)
+
+coroutine.resume(coroutine.create(function()
+    while true do
+        if m.Enabled then
+            local a3 = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+            if a3 <= 40 then h.Prediction = m.ping30_40
+            elseif a3 <= 50 then h.Prediction = m.ping40_50
+            elseif a3 <= 60 then h.Prediction = m.ping50_60
+            elseif a3 <= 70 then h.Prediction = m.ping60_70
+            elseif a3 <= 80 then h.Prediction = m.ping70_80
+            elseif a3 <= 90 then h.Prediction = m.ping80_90
+            elseif a3 <= 100 then h.Prediction = m.ping90_100
+            elseif a3 <= 110 then h.Prediction = m.ping100_110
+            elseif a3 <= 120 then h.Prediction = m.ping110_120
+            elseif a3 <= 130 then h.Prediction = m.ping120_130
+            elseif a3 <= 140 then h.Prediction = m.ping130_140
+            elseif a3 <= 150 then h.Prediction = m.ping140_150
+            elseif a3 <= 160 then h.Prediction = m.ping150_160
+            elseif a3 <= 170 then h.Prediction = m.ping160_170
+            elseif a3 <= 180 then h.Prediction = m.ping170_180
+            elseif a3 <= 190 then h.Prediction = m.ping180_190
+            elseif a3 <= 200 then h.Prediction = m.ping190_200
+            end
+        end
+        task.wait(0.7)
+    end
+end))
+
+-- Watermark UI
+local ScreenGui = Instance.new("ScreenGui")
+local Watermark = Instance.new("TextLabel")
+
+ScreenGui.Parent = game.CoreGui
+Watermark.Parent = ScreenGui
+Watermark.BackgroundTransparency = 1 -- Make background transparent
+Watermark.BorderSizePixel = 0
+Watermark.Position = UDim2.new(0.5, -50, 0, 10)
+Watermark.Size = UDim2.new(0, 100, 0, 30)
+Watermark.Font = Enum.Font.SourceSansBold
+Watermark.Text = "souless.gg"
+Watermark.TextColor3 = Color3.fromRGB(255, 0, 0)
+Watermark.TextScaled = true
+Watermark.TextTransparency = 0
+Watermark.Visible = false
+
+local function ChangeColor()
+    while true do
+        for i = 0, 1, 0.01 do
+            Watermark.TextColor3 = Color3.fromHSV(i, 1, 1)
+            task.wait(0.03)
+        end
+    end
+end
+
+coroutine.wrap(ChangeColor)()
+
+q.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        Watermark.Visible = not Watermark.Visible
+    end
+end)
